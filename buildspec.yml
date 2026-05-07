@@ -4,12 +4,16 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 18
+      python: 3.11
+
+    commands:
+      - echo "Installing dependencies"
+      - pip install -r requirements.txt
 
   build:
     commands:
-      - echo "Installing packages"
-      - npm install
+      - echo "Running Django checks"
+      - python manage.py check
 
 artifacts:
   files:
