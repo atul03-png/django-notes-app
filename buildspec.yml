@@ -1,4 +1,3 @@
-
 version: 0.2
 
 phases:
@@ -8,12 +7,29 @@ phases:
 
     commands:
       - echo "Installing dependencies"
+      - pip install autopep8
       - pip install -r requirements.txt
+
+  pre_build:
+    commands:
+      - echo "Running lint checks"
+      - python3 -m autopep8 --in-place --recursive .
+
+      - echo "Logging into Docker Hub"
+      - echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
 
   build:
     commands:
-      - echo "Running Django checks"
-      - python manage.py check
+      - echo "Building Docker image"
+      - docker build -t notes-app:latest .
+
+      - echo "Tagging image"
+      - docker tag notes-app:latest $DOCKER_USER/notes-app:latest
+
+  post_build:
+    commands:
+      - echo "Pushing image to Docker Hub"
+      - docker push $DOCKER_USER/notes-app:latest
 
 artifacts:
   files:
